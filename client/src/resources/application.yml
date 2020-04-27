@@ -1,0 +1,20 @@
+spring:
+  datasource:
+    hikari:
+      maximum-pool-size: ${thread.maxpool}
+      minimum-idle: ${thread.pool}
+      auto-commit: true
+      connection-timeout: 15000
+      idle-timeout: 100000
+      max-lifetime: 300000
+    url:  jdbc:mysql://${u.jdbc.url}/${u.jdbc.database}?useUnicode=true&characterEncoding=utf8&zeroDateTimeBehavior=convertToNull&useSSL=false&allowMultiQueries=true
+    username: ${u.jdbc.username}
+    password: ${u.jdbc.password}
+  task:
+    execution:
+      pool:
+        core-size: ${thread.pool}
+        max-size: ${thread.pool}
+logging:
+  level:
+    root: info
