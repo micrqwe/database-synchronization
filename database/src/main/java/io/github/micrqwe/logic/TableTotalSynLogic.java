@@ -14,7 +14,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
@@ -35,29 +34,28 @@ import java.util.Observer;
 @Service
 public class TableTotalSynLogic {
     private Logger logger = LoggerFactory.getLogger(TableTotalSynLogic.class);
-    @Autowired
-    private DataSourceConfig dataSourceConfig;
     private ThreadCurrentService threadCurrentService;
 
     /**
      * 不同数据源同步
      * tableSynReqVo  同步数据
      * observers 注册当前表数据同步的id
+     *
      * @return
      */
     public boolean synchronizationDataSource(CustomTableSynReqVo tableSynReqVo, List<Observer> observers) {
         // 注册通知
         DatabaseCallback databaseCallback = null;
-        if(!CollectionUtils.isEmpty(observers)){
+        if (!CollectionUtils.isEmpty(observers)) {
             databaseCallback = new DatabaseCallback();
-            for (Observer observer : observers){
+            for (Observer observer : observers) {
                 databaseCallback.addObserver(observer);
             }
         }
         String[] tables = null;
         // 初始化数据库
-        DataSource targetDataSource = dataSourceConfig.dataSource(tableSynReqVo.getTargetUrl(), tableSynReqVo.getTargetName(), tableSynReqVo.getTargetPassword(), tableSynReqVo.getQueryPool() + tableSynReqVo.getInsertPool());
-        DataSource sourceDataSource = dataSourceConfig.dataSource(tableSynReqVo.getSourceUrl(), tableSynReqVo.getSourceName(), tableSynReqVo.getSourcePassword(), tableSynReqVo.getQueryPool() + tableSynReqVo.getInsertPool());
+        DataSource targetDataSource = DataSourceConfig.dataSource(tableSynReqVo.getTargetUrl(), tableSynReqVo.getTargetName(), tableSynReqVo.getTargetPassword(), tableSynReqVo.getInsertPool() );
+        DataSource sourceDataSource = DataSourceConfig.dataSource(tableSynReqVo.getSourceUrl(), tableSynReqVo.getSourceName(), tableSynReqVo.getSourcePassword(),  tableSynReqVo.getQueryPool());
         // 判断是全量表还是部分表
         if (StringUtils.isBlank(tableSynReqVo.getTable())) {
             tables = connection(sourceDataSource);
@@ -68,11 +66,15 @@ public class TableTotalSynLogic {
         for (String t : tables) {
             // 定义插入的数据源
             DatabaseInsertLogic databaseInsertLogic = new MysqlExecuteSqlLogic(targetDataSource);
-            threadCurrentService = new ThreadCurrentService(databaseInsertLogic,databaseCallback);
+            threadCurrentService = new ThreadCurrentService(databaseInsertLogic, databaseCallback);
 
             Pair<List<ColumnModel>, String> columns = DataBaseUtils.getDatabaseTable(sourceDataSource, t);
             if (CollectionUtils.isEmpty(columns.getKey())) {
                 logger.info(t + "当前表中没有数据");
+                continue;
+            }
+            if (StringUtils.isBlank(columns.getValue())) {
+                logger.info(t + "当前表无主键。跳过");
                 continue;
             }
             SynchronizationModelDTO synchronizationModel = new SynchronizationModelDTO();

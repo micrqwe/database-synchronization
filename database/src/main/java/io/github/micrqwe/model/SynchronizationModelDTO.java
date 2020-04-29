@@ -10,8 +10,8 @@ public class SynchronizationModelDTO {
 //    List<ColumnModel> columns,String table, String shardingTable, String key, String shardingKey,DataSource targetSource,
 //    javax.sql.DataSource dataSource, int size, int sleep
     private String table;
-    private String shardingTable;
     private String key;
+    private String shardingTable;
     private String shardingKey;
     private DataSource targetSource;
     private DataSource source;

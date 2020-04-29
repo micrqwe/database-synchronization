@@ -360,16 +360,6 @@ public class ThreadCurrentService {
         if (databaseCallback != null) {
             databaseCallback.databasecallback(table, id);
         }
-       /* TableKey tableKey = new TableKey();
-        tableKey.setTable(table);
-        tableKey.setId(id);
-        String s = objectMapper.writeValueAsString(tableKey);
-        File file = new File(this.file);
-        OutputStream os = new FileOutputStream(file);
-        PrintWriter pw = new PrintWriter(os);
-        pw.println(s);//每输入一个数据，自动换行，便于我们每一行每一行地进行读取
-        pw.close();
-        os.close();*/
     }
 
     public HashMap<String, AtomicLong> getKeySize() {
