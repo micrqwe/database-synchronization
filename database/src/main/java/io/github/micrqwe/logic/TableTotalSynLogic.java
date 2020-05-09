@@ -31,10 +31,8 @@ import java.util.Observer;
  * @author shaowenxing@cnstrong.cn
  * @since 17:52
  */
-@Service
 public class TableTotalSynLogic {
     private Logger logger = LoggerFactory.getLogger(TableTotalSynLogic.class);
-    private ThreadCurrentService threadCurrentService;
 
     /**
      * 不同数据源同步
@@ -53,7 +51,7 @@ public class TableTotalSynLogic {
             }
         }
         String[] tables = null;
-        // 初始化数据库
+        // 初始化数据库 插入的目标数据库
         DataSource targetDataSource = DataSourceConfig.dataSource(tableSynReqVo.getTargetUrl(), tableSynReqVo.getTargetName(), tableSynReqVo.getTargetPassword(), tableSynReqVo.getInsertPool() );
         DataSource sourceDataSource = DataSourceConfig.dataSource(tableSynReqVo.getSourceUrl(), tableSynReqVo.getSourceName(), tableSynReqVo.getSourcePassword(),  tableSynReqVo.getQueryPool());
         // 判断是全量表还是部分表
@@ -62,12 +60,12 @@ public class TableTotalSynLogic {
         } else {
             tables = tableSynReqVo.getTable().split(",");
         }
+        // 定义插入的数据源
+        DatabaseInsertLogic databaseInsertLogic = new MysqlExecuteSqlLogic(targetDataSource);
+        // 执行数据库
+        ThreadCurrentService threadCurrentService = new ThreadCurrentService(databaseInsertLogic, databaseCallback);
         // 处理了表数据
         for (String t : tables) {
-            // 定义插入的数据源
-            DatabaseInsertLogic databaseInsertLogic = new MysqlExecuteSqlLogic(targetDataSource);
-            threadCurrentService = new ThreadCurrentService(databaseInsertLogic, databaseCallback);
-
             Pair<List<ColumnModel>, String> columns = DataBaseUtils.getDatabaseTable(sourceDataSource, t);
             if (CollectionUtils.isEmpty(columns.getKey())) {
                 logger.info(t + "当前表中没有数据");

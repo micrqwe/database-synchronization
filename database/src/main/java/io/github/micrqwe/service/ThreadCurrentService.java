@@ -53,9 +53,6 @@ public class ThreadCurrentService {
     private HashMap<String, AtomicLong> keySize = new HashMap<>();
 
 
-    public ThreadCurrentService(DatabaseInsertLogic databaseInsertLogic) {
-        this.mysqlExecuteSqlLogic = databaseInsertLogic;
-    }
 
     public ThreadCurrentService(DatabaseInsertLogic databaseInsertLogic, DatabaseCallback databaseCallback) {
         this.mysqlExecuteSqlLogic = databaseInsertLogic;
